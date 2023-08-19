@@ -21,8 +21,6 @@ DetectHiddenWindows, On
    return
 }
 
-
-
 ; Change refresh rate ChangeResolution(32,x,y,hz)
 >^1::
 {
