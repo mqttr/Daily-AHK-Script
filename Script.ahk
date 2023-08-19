@@ -15,23 +15,35 @@ DetectHiddenWindows, On
 ;pin window to be always on top
 ^!x::  Winset, Alwaysontop, , A
 
+>^NumPad0::
+{
+   Run python main.py, D:\My Projects\018 Computer Web Control\Computer-Web-Control
+   return
+}
+
+
+
 ; Change refresh rate ChangeResolution(32,x,y,hz)
 >^1::
-ChangeResolution(32,1920,1080,144)
-SoundGet, sound_mute, Master, mute
-if sound_mute = On
 {
-   Send {Volume_Mute} 
+   ChangeResolution(32,1920,1080,144)
+   SoundGet, sound_mute, Master, mute
+   if sound_mute = On
+   {
+      Send {Volume_Mute} 
+   }
+   return
+   >^2::
+   ChangeResolution(32,1920,1080,60)
+   SoundGet, sound_mute, Master, mute
+   if sound_mute = Off
+   {
+      Send {Volume_Mute} 
+   }
+   return
 }
-return
->^2::
-ChangeResolution(32,1920,1080,60)
-SoundGet, sound_mute, Master, mute
-if sound_mute = Off
-{
-   Send {Volume_Mute} 
-}
-return
+
+
 ChangeResolution( cD, sW, sH, rR ) 
 {
 VarSetCapacity(dM,156,0), NumPut(156,2,&dM,36)
@@ -42,31 +54,34 @@ Return DllCall( "ChangeDisplaySettingsA", UInt,&dM, UInt,0 )
 }
 
 ^g::
-MyClip := ClipboardAll
-Clipboard = ; empty the clipboard
-Send, ^c
-ClipWait, 2
-if ErrorLevel  ; ClipWait timed out.
 {
-    return
+   MyClip := ClipboardAll
+   Clipboard = ; empty the clipboard
+   Send, ^c
+   ClipWait, 2
+   if ErrorLevel  ; ClipWait timed out.
+   {
+      return
+   }
+   if RegExMatch(Clipboard, "^[^ ]*\.[^ ]*$")
+   {
+      Run "C:\Program Files\Mozilla Firefox\Firefox.exe" %Clipboard%
+   }
+   else  
+   {
+      ; Modify some characters that screw up the URL
+      ; RFC 3986 section 2.2 Reserved Characters (January 2005):  !*'();:@&=+$,/?#[]
+      StringReplace, Clipboard, Clipboard, `r`n, %A_Space%, All
+      StringReplace, Clipboard, Clipboard, #, `%23, All
+      StringReplace, Clipboard, Clipboard, &, `%26, All
+      StringReplace, Clipboard, Clipboard, +, `%2b, All
+      StringReplace, Clipboard, Clipboard, ", `%22, All
+      Run % "https://www.ecosia.org/search?q=" . clipboard . "&addon=firefox&addonversion=4.1.0&method=topbar" ; uriEncode(clipboard)
+   }
+   Clipboard := MyClip
+   return
 }
-if RegExMatch(Clipboard, "^[^ ]*\.[^ ]*$")
-{
-    Run "C:\Program Files\Mozilla Firefox\Firefox.exe" %Clipboard%
-}
-else  
-{
-   ; Modify some characters that screw up the URL
-   ; RFC 3986 section 2.2 Reserved Characters (January 2005):  !*'();:@&=+$,/?#[]
-   StringReplace, Clipboard, Clipboard, `r`n, %A_Space%, All
-   StringReplace, Clipboard, Clipboard, #, `%23, All
-   StringReplace, Clipboard, Clipboard, &, `%26, All
-   StringReplace, Clipboard, Clipboard, +, `%2b, All
-   StringReplace, Clipboard, Clipboard, ", `%22, All
-   Run % "https://www.ecosia.org/search?q=" . clipboard . "&addon=firefox&addonversion=4.1.0&method=topbar" ; uriEncode(clipboard)
-}
-Clipboard := MyClip
-return
+
 ; Handy function.
 ; Copies the selected text to a variable while preserving the clipboard.
 GetText(ByRef MyText = "")
@@ -137,14 +152,14 @@ spotifyKey(key) {
 }
 
 ; Win+alt+right: Seek forward
-#!Right::
+>+Right::
 {
 	spotifyKey("+{Right}")
 	Return
 }
 
 ; Win+alt+left: Seek backward
-#!Left::
+>+Left::
 {
 	spotifyKey("+{Left}")
 	Return
