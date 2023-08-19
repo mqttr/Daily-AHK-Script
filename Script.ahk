@@ -56,14 +56,14 @@ if RegExMatch(Clipboard, "^[^ ]*\.[^ ]*$")
 }
 else  
 {
-    ; Modify some characters that screw up the URL
-    ; RFC 3986 section 2.2 Reserved Characters (January 2005):  !*'();:@&=+$,/?#[]
-    StringReplace, Clipboard, Clipboard, `r`n, %A_Space%, All
-    StringReplace, Clipboard, Clipboard, #, `%23, All
-    StringReplace, Clipboard, Clipboard, &, `%26, All
-    StringReplace, Clipboard, Clipboard, +, `%2b, All
-    StringReplace, Clipboard, Clipboard, ", `%22, All
-    Run % "https://www.startpage.com/do/dsearch?query=" . clipboard ; uriEncode(clipboard)
+   ; Modify some characters that screw up the URL
+   ; RFC 3986 section 2.2 Reserved Characters (January 2005):  !*'();:@&=+$,/?#[]
+   StringReplace, Clipboard, Clipboard, `r`n, %A_Space%, All
+   StringReplace, Clipboard, Clipboard, #, `%23, All
+   StringReplace, Clipboard, Clipboard, &, `%26, All
+   StringReplace, Clipboard, Clipboard, +, `%2b, All
+   StringReplace, Clipboard, Clipboard, ", `%22, All
+   Run % "https://www.ecosia.org/search?q=" . clipboard . "&addon=firefox&addonversion=4.1.0&method=topbar" ; uriEncode(clipboard)
 }
 Clipboard := MyClip
 return
